@@ -132,7 +132,7 @@ func printUsage() {
 	fmt.Println(ui.C(ui.Bold, "  Canvas LMS command-line client"))
 	fmt.Println()
 	fmt.Println(ui.C(ui.Bold, "SETUP"))
-	fmt.Println("  configure              Set up Canvas URL, username & password")
+	fmt.Println("  configure              Set up Canvas URL and API token")
 	fmt.Println("  whoami                 Show your profile info")
 	fmt.Println()
 	fmt.Println(ui.C(ui.Bold, "COURSES"))

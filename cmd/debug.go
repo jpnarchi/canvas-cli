@@ -9,11 +9,11 @@ import (
 
 func runDebugLogin() {
 	fmt.Println()
-	ui.Header("Debug Login Flow")
+	ui.Header("Debug Connection Test")
 	fmt.Println()
 
 	client.Debug = true
-	err := client.Login()
+	name, err := client.TestConnection()
 	if err != nil {
 		fmt.Println()
 		ui.Error(err.Error())
@@ -21,6 +21,10 @@ func runDebugLogin() {
 	}
 
 	fmt.Println()
-	ui.Success("Login successful! API access confirmed.")
+	if name != "" {
+		ui.Success(fmt.Sprintf("Connection successful! Authenticated as: %s", name))
+	} else {
+		ui.Success("Connection successful! API access confirmed.")
+	}
 	fmt.Println()
 }

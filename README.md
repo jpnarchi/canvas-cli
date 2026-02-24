@@ -9,8 +9,6 @@
 
 A universal command-line client for **Canvas LMS** written in Go. Works with any Canvas instance — just provide your institution's URL and an API access token.
 
-> **Looking for the Tec de Monterrey version?** There's a separate version with full SAML SSO + TOTP support specifically for `experiencia21.tec.mx`. See [canvas-cli](https://github.com/jpnarchi/canvas-cli).
-
 ## Features
 
 - Works with **any Canvas LMS instance** (Instructure, self-hosted, etc.)
@@ -30,8 +28,8 @@ A universal command-line client for **Canvas LMS** written in Go. Works with any
 
 ```bash
 # Clone and build
-git clone https://github.com/jpnarchi/canvas-cli-general.git
-cd canvas-cli-general
+git clone https://github.com/jpnarchi/canvas-cli.git
+cd canvas-cli
 go build -o canvas-cli .
 
 # Optional: add to PATH
@@ -76,7 +74,7 @@ canvas-cli todo
 |---------|-------------|
 | `canvas-cli configure` | Set up Canvas URL and API token |
 | `canvas-cli whoami` | Show your profile info |
-| `canvas-cli debug-login` | Test login flow with verbose output |
+| `canvas-cli debug-login` | Test API connection with verbose output |
 | `canvas-cli version` | Show CLI version |
 
 ### Courses
@@ -157,7 +155,7 @@ Config is stored at `~/.canvas-cli/config.json` with `0600` permissions:
 ## Project Structure
 
 ```
-canvas-cli-general/
+canvas-cli/
 ├── main.go                    # Entry point
 ├── go.mod                     # Go module (zero external deps)
 ├── cmd/

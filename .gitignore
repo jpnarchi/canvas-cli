@@ -1,5 +1,3 @@
 canvas-cli
-go.mod
-go.sum
 *.exe
 config.json
