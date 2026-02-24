@@ -77,6 +77,8 @@ func Execute() {
 
 	// Route commands
 	switch command {
+	case "debug-login":
+		runDebugLogin()
 	case "whoami":
 		runWhoami()
 	case "courses":
@@ -127,10 +129,10 @@ func printUsage() {
    ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝  ╚═══╝  ╚═╝  ╚═╝╚══════╝  CLI`))
 
 	fmt.Println()
-	fmt.Println(ui.C(ui.Bold, "  Canvas LMS command-line client (universal)"))
+	fmt.Println(ui.C(ui.Bold, "  Canvas LMS command-line client"))
 	fmt.Println()
 	fmt.Println(ui.C(ui.Bold, "SETUP"))
-	fmt.Println("  configure              Set up Canvas URL & API token")
+	fmt.Println("  configure              Set up Canvas URL, username & password")
 	fmt.Println("  whoami                 Show your profile info")
 	fmt.Println()
 	fmt.Println(ui.C(ui.Bold, "COURSES"))

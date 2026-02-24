@@ -1,6 +1,6 @@
 SKILL.md
 canvas-cli
-Use canvas-cli for Canvas LMS — courses, assignments, grades, submissions, discussions, files, and more. Works with any Canvas instance via API token.
+Use canvas-cli for Canvas LMS — courses, assignments, grades, submissions, discussions, files, and more. Uses SAML SSO with TOTP (session cached after first login).
 
 Setup (once)
 
@@ -32,10 +32,11 @@ Announcements: canvas-cli announcements [course]
 Files: canvas-cli files <course>
 Download: canvas-cli download <file_id> -o <path>
 Notifications: canvas-cli notifications
+Debug login: canvas-cli debug-login
 
 Notes
 
-Uses API token authentication — generate one from Canvas → Account → Settings → New Access Token.
+Session cookies are saved after first login — no TOTP needed on subsequent runs until session expires.
 Use --json on any command for raw JSON output (useful for scripting/piping).
 Use --per-page <n> to control pagination (default 50).
 Grades are color-coded: green (A), cyan (B), yellow (C), red (D/F).

@@ -9,9 +9,19 @@ import (
 	"strings"
 )
 
+type SavedCookie struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Domain string `json:"domain"`
+	Path   string `json:"path"`
+}
+
 type Config struct {
 	APIURL   string `json:"api_url"`
-	APIToken string `json:"api_token"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	// Saved session cookies (populated after successful login)
+	Cookies []SavedCookie `json:"cookies,omitempty"`
 }
 
 func ConfigDir() string {
@@ -32,7 +42,7 @@ func Load() (*Config, error) {
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("corrupt config file: %w", err)
 	}
-	if cfg.APIURL == "" || cfg.APIToken == "" {
+	if cfg.APIURL == "" || cfg.Username == "" || cfg.Password == "" {
 		return nil, fmt.Errorf("incomplete config. Run: canvas-cli configure")
 	}
 	return &cfg, nil
@@ -54,10 +64,8 @@ func RunSetup() (*Config, error) {
 
 	fmt.Println("=== Canvas CLI Configuration ===")
 	fmt.Println()
-	fmt.Println("You'll need your Canvas URL and an API access token.")
-	fmt.Println("To generate a token: Canvas → Account → Settings → New Access Token")
-	fmt.Println()
-	fmt.Println("Config will be stored in:", ConfigPath())
+	fmt.Println("Enter your Canvas login credentials.")
+	fmt.Println("They will be stored locally in:", ConfigPath())
 	fmt.Println()
 
 	fmt.Print("Canvas URL (e.g. https://myschool.instructure.com): ")
@@ -68,17 +76,22 @@ func RunSetup() (*Config, error) {
 		url = "https://" + url
 	}
 
-	fmt.Print("API Token: ")
-	token, _ := reader.ReadString('\n')
-	token = strings.TrimSpace(token)
+	fmt.Print("Username / Email: ")
+	username, _ := reader.ReadString('\n')
+	username = strings.TrimSpace(username)
 
-	if url == "" || token == "" {
+	fmt.Print("Password: ")
+	password, _ := reader.ReadString('\n')
+	password = strings.TrimSpace(password)
+
+	if url == "" || username == "" || password == "" {
 		return nil, fmt.Errorf("all fields are required")
 	}
 
 	cfg := &Config{
 		APIURL:   url,
-		APIToken: token,
+		Username: username,
+		Password: password,
 	}
 
 	if err := Save(cfg); err != nil {
