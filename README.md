@@ -7,18 +7,14 @@
    ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝  ╚═══╝  ╚═╝  ╚═╝╚══════╝  CLI
 ```
 
-A command-line client for **Canvas LMS (Experiencia21)** written in Go, built specifically for **Tecnologico de Monterrey** students.
+A universal command-line client for **Canvas LMS** written in Go. Works with any Canvas instance — just provide your institution's URL and an API access token.
 
-I'm a student at Tec de Monterrey and I built this so I could access Canvas (Experiencia21) directly from [OpenClaw](https://openclaw.com) and the terminal, without needing to open a browser.
-
-> **Important:** This version only works for Tec de Monterrey students using `experiencia21.tec.mx`. It handles the full Tec SAML SSO chain (amfs.tec.mx + aamfa.tec.mx + TOTP). If you're looking for a universal Canvas CLI that works with any institution, see [canvas-cli-general](https://github.com/jpnarchi/canvas-cli-general).
+> **Looking for the Tec de Monterrey version?** There's a separate version with full SAML SSO + TOTP support specifically for `experiencia21.tec.mx`. See [canvas-cli](https://github.com/jpnarchi/canvas-cli).
 
 ## Features
 
-- Full Tec de Monterrey SAML SSO authentication (amfs.tec.mx IdP)
-- Automatic device fingerprinting (JWS signed + JWE encrypted)
-- TOTP/MFA support — prompts for your authenticator code
-- Session caching — login once, reuse until session expires (no TOTP on every run)
+- Works with **any Canvas LMS instance** (Instructure, self-hosted, etc.)
+- Simple API token authentication — no complex SSO flows
 - 20+ commands covering courses, assignments, grades, submissions, modules, discussions, files, calendar, and more
 - Color-coded output with human-readable formatting
 - `--json` flag on any command for scripting/piping
@@ -27,15 +23,15 @@ I'm a student at Tec de Monterrey and I built this so I could access Canvas (Exp
 ## Requirements
 
 - Go 1.21+ (for building from source)
-- A Tec de Monterrey student account (e.g., `a01234567@tec.mx`)
-- Your TOTP authenticator app configured for Tec de Monterrey MFA
+- A Canvas LMS account at your institution
+- A Canvas API access token
 
 ## Installation
 
 ```bash
 # Clone and build
-git clone <repo-url> canvas-cli
-cd canvas-cli
+git clone https://github.com/jpnarchi/canvas-cli-general.git
+cd canvas-cli-general
 go build -o canvas-cli .
 
 # Optional: add to PATH
@@ -45,13 +41,12 @@ sudo ln -s $(pwd)/canvas-cli /usr/local/bin/canvas-cli
 ## Quick Start
 
 ```bash
-# 1. Configure with your Tec credentials
+# 1. Configure with your Canvas URL and API token
 canvas-cli configure
-# Canvas URL: https://experiencia21.tec.mx
-# Username: a01234567@tec.mx
-# Password: your password
+# Canvas URL: https://myschool.instructure.com
+# API Token: your_token_here
 
-# 2. Verify login (will prompt for TOTP code on first run)
+# 2. Verify login
 canvas-cli whoami
 
 # 3. List your courses
@@ -64,7 +59,14 @@ canvas-cli grades
 canvas-cli todo
 ```
 
-After the first successful login, your session is cached — subsequent commands won't ask for your TOTP code again until the session expires.
+### Generating an API Token
+
+1. Log in to your Canvas instance in a browser
+2. Go to **Account** → **Settings**
+3. Scroll to **Approved Integrations**
+4. Click **+ New Access Token**
+5. Give it a name (e.g. "canvas-cli") and click **Generate Token**
+6. Copy the token — you won't be able to see it again
 
 ## Commands
 
@@ -72,7 +74,7 @@ After the first successful login, your session is cached — subsequent commands
 
 | Command | Description |
 |---------|-------------|
-| `canvas-cli configure` | Set up Canvas URL, username, and password |
+| `canvas-cli configure` | Set up Canvas URL and API token |
 | `canvas-cli whoami` | Show your profile info |
 | `canvas-cli debug-login` | Test login flow with verbose output |
 | `canvas-cli version` | Show CLI version |
@@ -141,40 +143,21 @@ After the first successful login, your session is cached — subsequent commands
 | `--per-page <n>` | Results per page, default 50 |
 | `-h, --help` | Show help |
 
-## Authentication Flow (Tec de Monterrey)
-
-This CLI handles the full Tec SAML SSO chain automatically:
-
-1. `experiencia21.tec.mx/login` redirects via SAML to `amfs.tec.mx` (NetIQ IdP)
-2. Auto-submit intermediate form to load the credential page
-3. Credentials submitted with Base64-encoded password (`itesm64` field)
-4. Device fingerprinting handled (JWS HS256 signed + JWE A128CBC-HS256 encrypted)
-5. OAuth2 redirect to `aamfa.tec.mx` for MFA
-6. **TOTP code prompted** — enter from your authenticator app
-7. Consent form auto-submitted
-8. JavaScript redirect followed to generate SAMLResponse
-9. SAMLResponse posted back to Canvas → session established
-10. Session cookies saved to `~/.canvas-cli/config.json` for reuse
-
-On subsequent runs, saved cookies are tested first. If still valid, no login is needed.
-
 ## Configuration
 
 Config is stored at `~/.canvas-cli/config.json` with `0600` permissions:
 
 ```json
 {
-  "api_url": "https://experiencia21.tec.mx",
-  "username": "a01234567@tec.mx",
-  "password": "yourpassword",
-  "cookies": [...]
+  "api_url": "https://myschool.instructure.com",
+  "api_token": "your_api_token_here"
 }
 ```
 
 ## Project Structure
 
 ```
-canvas-cli/
+canvas-cli-general/
 ├── main.go                    # Entry point
 ├── go.mod                     # Go module (zero external deps)
 ├── cmd/
@@ -194,12 +177,11 @@ canvas-cli/
 │   └── whoami.go              # Whoami command
 ├── internal/
 │   ├── api/
-│   │   └── client.go          # HTTP client, SAML SSO, session management
+│   │   └── client.go          # HTTP client & API methods
 │   ├── config/
 │   │   └── config.go          # Configuration load/save
 │   └── ui/
 │       └── ui.go              # Colors, tables, formatting helpers
-├── SKILL.md
 └── README.md
 ```
 
